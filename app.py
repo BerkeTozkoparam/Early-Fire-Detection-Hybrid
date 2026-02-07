@@ -513,7 +513,10 @@ def page_live_camera():
         index=0,
         help="Gerçek IoT sensör olmadığı için simüle edilen sensör verisi"
     )
-    conf_threshold = st.slider("YOLO Güven Eşiği", 0.1, 0.9, 0.35, 0.05)
+    conf_threshold = st.slider("YOLO Güven Eşiği", 0.1, 0.95, 0.60, 0.05,
+                               help="Düşük = daha fazla algılama ama yanlış alarm. Yüksek = kesin algılama.")
+    process_every_n = st.slider("Her N. frame'de analiz", 1, 10, 3, 1,
+                                help="Performans için frame atlama. 1=her frame, 5=her 5. frame")
 
     st.markdown("---")
 
@@ -529,38 +532,55 @@ def page_live_camera():
                 self.conf = conf_threshold
                 self.sensor_name = sensor_scenario
                 self.frame_count = 0
+                self.skip = process_every_n
+                self.last_boxes = []
+                self.last_hybrid = None
 
             def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
                 img = frame.to_ndarray(format="bgr24")
                 self.frame_count += 1
 
-                # YOLOv8 detection
-                results = self.model.predict(
-                    source=img, conf=self.conf, iou=0.5,
-                    save=False, show=False, verbose=False
-                )
+                # Only run YOLO every N frames for performance
+                if self.frame_count % self.skip == 0 or self.last_hybrid is None:
+                    # Resize for faster inference
+                    h_orig, w_orig = img.shape[:2]
+                    scale = min(640 / w_orig, 640 / h_orig, 1.0)
+                    if scale < 1.0:
+                        small = cv2.resize(img, (int(w_orig * scale), int(h_orig * scale)))
+                    else:
+                        small = img
 
-                boxes = []
-                if len(results) > 0 and results[0].boxes is not None:
-                    for box in results[0].boxes:
-                        xyxy = box.xyxy[0].cpu().numpy()
-                        confidence = float(box.conf[0].cpu().numpy())
-                        boxes.append([*xyxy, confidence])
+                    results = self.model.predict(
+                        source=small, conf=self.conf, iou=0.5,
+                        save=False, show=False, verbose=False
+                    )
 
-                max_conf = max([b[4] for b in boxes], default=0.0)
-                visual_result = {
-                    "fire_detected": len(boxes) > 0,
-                    "max_confidence": max_conf,
-                    "num_detections": len(boxes),
-                    "boxes": boxes,
-                }
+                    boxes = []
+                    if len(results) > 0 and results[0].boxes is not None:
+                        for box in results[0].boxes:
+                            xyxy = box.xyxy[0].cpu().numpy()
+                            confidence = float(box.conf[0].cpu().numpy())
+                            # Scale boxes back to original size
+                            if scale < 1.0:
+                                xyxy = xyxy / scale
+                            boxes.append([*xyxy, confidence])
 
-                # Sensor prediction
-                s_data = SENSOR_PRESETS[self.sensor_name]["data"]
-                sensor_result = sensor_predict(s_data)
+                    self.last_boxes = boxes
 
-                # Hybrid fusion
-                hybrid = fuse_predictions(visual_result, sensor_result)
+                    max_conf = max([b[4] for b in boxes], default=0.0)
+                    visual_result = {
+                        "fire_detected": len(boxes) > 0,
+                        "max_confidence": max_conf,
+                        "num_detections": len(boxes),
+                        "boxes": boxes,
+                    }
+
+                    s_data = SENSOR_PRESETS[self.sensor_name]["data"]
+                    sensor_result = sensor_predict(s_data)
+                    self.last_hybrid = fuse_predictions(visual_result, sensor_result)
+
+                boxes = self.last_boxes
+                hybrid = self.last_hybrid
                 risk_color = RISK_COLORS_BGR.get(hybrid.risk_level, (255, 255, 255))
                 risk_label = RISK_LABELS_TR.get(hybrid.risk_level, "?")
 
