@@ -12,7 +12,12 @@ joblib>=1.4
 torch>=2.5
 torchvision>=0.20
 ultralytics>=8.4
-opencv-python>=4.10
+opencv-python-headless>=4.10
+
+# Web UI
+streamlit>=1.30
+streamlit-webrtc>=0.47
+av>=10.0
 
 # Utilities
 PyYAML>=6.0
