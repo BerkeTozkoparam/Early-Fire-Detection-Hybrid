@@ -3,7 +3,6 @@
 Hybrid early fire detection system combining **YOLOv8 visual detection** with **IoT sensor-based ML** for maximum accuracy and reliability.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
-![Streamlit](https://img.shields.io/badge/Streamlit-Web_UI-FF4B4B?logo=streamlit)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Object_Detection-00FFFF?logo=yolo)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikit-learn)
 
@@ -29,24 +28,21 @@ The hybrid system outputs 5 risk levels:
 
 ## Features
 
-- **Live Camera Detection** - Real-time fire detection via webcam (WebRTC)
-- **Image Upload** - Analyze uploaded images for fire
+- **Live Camera Detection** - Real-time fire detection via OpenCV webcam
 - **IoT Sensor Analysis** - Predict fire risk from 15 sensor readings
 - **Hybrid Fusion** - Combined visual + sensor risk assessment
-- **EDA Dashboard** - Exploratory data analysis visualizations
-- **Model Training** - Train sensor model directly from the web UI
+- **EDA Visualizations** - Exploratory data analysis plots
+- **CLI Interface** - Train, test, and demo from command line
 
 ## Project Structure
 
 ```
 Early fire/
-├── app.py                     # Streamlit web application
 ├── main.py                    # CLI entry point
-├── live_camera.py             # Standalone OpenCV camera script
+├── live_camera.py             # OpenCV live camera detection
 ├── yolo_train.py              # YOLOv8 training script
 ├── yolo_test.py               # YOLOv8 validation script
 ├── requirements.txt           # Python dependencies
-├── packages.txt               # System dependencies (Streamlit Cloud)
 ├── data/
 │   └── smoke_detection_iot.csv  # IoT sensor dataset (62,630 samples)
 ├── models/                    # Trained model artifacts
@@ -79,14 +75,6 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Web UI (Streamlit)
-
-```bash
-streamlit run app.py
-```
-
-Opens at `http://localhost:8501` with pages for live camera, sensor detection, hybrid detection, EDA, and model training.
-
 ### CLI
 
 ```bash
@@ -103,7 +91,7 @@ python main.py --test-yolo
 python main.py --hybrid
 ```
 
-### Standalone Camera
+### Live Camera
 
 ```bash
 python live_camera.py
@@ -144,7 +132,6 @@ The IoT sensor dataset (`smoke_detection_iot.csv`) contains **62,630 samples** w
 
 - **Computer Vision**: PyTorch, Ultralytics YOLOv8, OpenCV
 - **Machine Learning**: scikit-learn, Random Forest
-- **Web UI**: Streamlit, streamlit-webrtc
 - **Data Analysis**: pandas, NumPy, matplotlib, seaborn
 
 ## License

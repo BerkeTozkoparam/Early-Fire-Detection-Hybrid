@@ -18,9 +18,6 @@ models/*.png
 .DS_Store
 Thumbs.db
 
-# Streamlit (keep config for deploy)
-# .streamlit/
-
 # Screenshots
 screenshot_*.png
 
