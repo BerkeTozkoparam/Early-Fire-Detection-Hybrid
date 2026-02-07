@@ -60,6 +60,8 @@ def load_and_preprocess(filepath=DATA_PATH):
 
 def train_model(X, y, feature_names=None):
     """Split data, scale features, train Random Forest, evaluate."""
+    os.makedirs(os.path.join(PROJECT_ROOT, "models"), exist_ok=True)
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
