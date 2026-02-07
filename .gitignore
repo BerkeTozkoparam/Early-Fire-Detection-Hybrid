@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Models (large binary files)
+models/*.pt
+models/*.joblib
+models/*.png
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Screenshots
+screenshot_*.png
+
+# Runs (YOLO training output)
+runs/

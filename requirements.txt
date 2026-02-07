@@ -1,0 +1,18 @@
+# Core
+numpy>=2.0
+pandas>=2.2
+matplotlib>=3.9
+seaborn>=0.13
+
+# ML - Sensor Model
+scikit-learn>=1.5
+joblib>=1.4
+
+# Computer Vision - YOLO Model
+torch>=2.5
+torchvision>=0.20
+ultralytics>=8.4
+opencv-python>=4.10
+
+# Utilities
+PyYAML>=6.0
